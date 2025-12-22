@@ -1,0 +1,29 @@
+{
+  "todos": [
+    {
+      "title": "Умыться",
+      "completed": false,
+      "id": 1
+    },
+    {
+      "title": "Позавтракать",
+      "completed": false,
+      "id": 2
+    },
+    {
+      "title": "Купить хлеб",
+      "completed": false,
+      "id": 4
+    },
+    {
+      "title": "Отремонтировать кран",
+      "completed": false,
+      "id": 5
+    },
+    {
+      "title": "Показать идео",
+      "completed": false,
+      "id": 6
+    }
+  ]
+}

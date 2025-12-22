@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './App.module.css';
 import { getTodos, createTodo, updateTodo, deleteTodo } from './api';
+
+import debounce from 'lodash.debounce';
 
 export const App = () => {
 	// const initialTodos = [
@@ -13,6 +15,17 @@ export const App = () => {
 	const [newTask, setNewTask] = useState('');
 	const [search, setSearch] = useState('');
 	const [sortAsc, setSortAsc] = useState(true); // true = A→Z, false = Z→A
+
+	// 	Debounce решает проблему: при быстром наборе setSearch вызывается 10+ раз в секунду → visibleTodos пересчитывается 10+ раз → лишние вычисления.
+	// Нужно: ждать паузу 300–500мс после последнего изменения → только тогда обновлять поиск.
+
+	// Я в терминале установил lodash: npm install lodash.debounce
+	// Debounced версия setSearch: ждёт 400мс паузы после набора
+	const debouncedSetSearch = useRef(
+		debounce((value) => {
+			setSearch(value);
+		}, 400),
+	).current;
 
 	// 1 способ работы с асинхронным кодом и выполением http запросов с помощью хука useEffect
 	// useEffect(() => {
@@ -37,6 +50,12 @@ export const App = () => {
 		};
 
 		fetchTodos();
+
+		// Очистка debounce при размонтировании
+		return () => {
+			debouncedSetSearch?.cancel();
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleNewTaskChange = (event) => {
@@ -190,7 +209,8 @@ export const App = () => {
 				type="text"
 				placeholder="Поиск по задачам"
 				value={search}
-				onChange={(event) => setSearch(event.target.value)}
+				// onChange={(event) => setSearch(event.target.value)}
+				onChange={(event) => debouncedSetSearch(event.target.value)}
 			/>
 
 			<button type="button" onClick={() => setSortAsc((prev) => !prev)}>

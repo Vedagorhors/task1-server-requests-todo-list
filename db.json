@@ -19,11 +19,6 @@
       "title": "Отремонтировать кран",
       "completed": false,
       "id": 5
-    },
-    {
-      "title": "Показать идео",
-      "completed": false,
-      "id": 6
     }
   ]
 }

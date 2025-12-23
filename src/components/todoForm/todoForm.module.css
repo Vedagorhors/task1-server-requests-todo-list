@@ -1,0 +1,45 @@
+.todoForm {
+	/* display: flex; */
+	align-items: center; /* выравнивание по вертикали */
+	gap: 8px;
+	margin-bottom: 20px;
+}
+
+.todoField {
+	flex: 1;
+}
+
+.fieldLabel {
+	display: block;
+	margin-bottom: 4px;
+	font-size: 14px;
+	color: #666;
+}
+
+.fieldInput {
+	width: 100%;
+	padding: 8px 12px; /* те же отступы, что и у кнопки */
+	border: 1px solid #007bff;
+	/* border-radius: 4px 0 0 4px; */
+	font-size: 16px;
+	box-sizing: border-box;
+}
+
+.fieldInput:focus {
+	border-color: #007bff;
+	outline: none;
+}
+
+.button {
+	padding: 8px 12px; /* те же вертикальные отступы */
+	background: #007bff;
+	color: white;
+	border: 1px solid #007bff; /* тот же бордер, что и у инпута */
+	/* border-radius: 0 4px 4px 0; */
+	font-size: 14px; /* тот же размер шрифта */
+	cursor: pointer;
+}
+
+.button:hover {
+	background: #0056b3;
+}

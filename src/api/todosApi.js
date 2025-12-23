@@ -1,3 +1,5 @@
+// src/api/todosApi.js — БЭКАП JSON SERVER (НЕ УДАЛЯТЬ)
+
 const BASE_URL = 'http://localhost:3001';
 // нужно сделать запрос на /todos, проверить статус, вернуть массив задач
 export const getTodos = async () => {

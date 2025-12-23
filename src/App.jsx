@@ -1,8 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './App.module.css';
-import { getTodos, createTodo, updateTodo, deleteTodo } from './api';
-
+// import { getTodos, createTodo, updateTodo, deleteTodo } from './api';
+import { getTodos, createTodo, updateTodo, deleteTodo } from './api/todosApiFirebase';
 import debounce from 'lodash.debounce';
+// import TodoItem from './components/todoItem';
+import TodoForm from './components/todoForm';
+import TodoList from './components/todoList';
+import TodoFilters from './components/todoFilters';
+import { getVisibleTodos } from './utils/gerVisibleTodos';
 
 export const App = () => {
 	// const initialTodos = [
@@ -101,31 +106,14 @@ export const App = () => {
 	// При каждом клике по чекбоксу:
 	// 1) отправляет на сервер PATCH /todos/:id с новым значением completed,
 	// 2) обновляет локальное состояние todos на основе ответа сервера.
-	const handleToggleCompleted = async (id, newCompleted) => {
+	const handleToggleCompleted = async (id, completed) => {
 		try {
-			// Отправляем на JSON Server запрос на частичное обновление задачи.
-			// Передаём только те поля, которые хотим изменить: в нашем случае completed.
-			// Сервер найдёт задачу по id, изменит поле completed и вернёт обновлённый объект задачи.
-			// updateTodo обновляет запись на сервере и возвращает полную задачу (с тем же id, title, но новым completed).
-			const updatedTodo = await updateTodo(id, { completed: newCompleted });
+			await updateTodo(id, { completed });
 
-			// Обновляем состояние todos на основе предыдущего значения.
-			setTodos((prevTodos) =>
-				// В setTodos используется map: для всех задач кроме нужной возвращаем старый объект, а для задачи с нужным id — updatedTodo.
-				// Создаём НОВЫЙ массив задач.
-				// Для каждой задачи:
-				prevTodos.map(
-					(todo) =>
-						// если id совпадает с тем, который мы обновили,
-						// подставляем объект updatedTodo, пришедший с сервера;
-						todo.id === id ? updatedTodo : todo,
-					// иначе оставляем задачу без изменений.
-				),
-			);
+			// Перезагрузка с сервера (как в handleDelete)
+			const updatedTodos = await getTodos();
+			setTodos(updatedTodos);
 		} catch (error) {
-			// Если при запросе произошла ошибка (сервер недоступен, статус не 2xx и т.п.),
-			// выводим сообщение в консоль. Это помогает понять, что пошло не так,
-			// не ломая работу всего приложения.
 			console.error('Ошибка при обновлении задачи:', error);
 		}
 	};
@@ -135,11 +123,11 @@ export const App = () => {
 		try {
 			// 1. Пытаемся удалить задачу на сервере.
 			await deleteTodo(id);
-
+			const updatedTodos = await getTodos();
 			// 2. Если ошибок не было, обновляем локальное состояние.
 			//    Фильтруем массив: оставляем только те задачи,
 			//    id которых не совпадает с удаляемым.
-			setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+			setTodos(updatedTodos);
 		} catch (error) {
 			console.error('Ошибка при удалении задачи:', error);
 		}
@@ -147,103 +135,54 @@ export const App = () => {
 
 	// 1. Нормализуем поисковую фразу: убираем пробелы по краям и переводим в нижний регистр.
 	// Это нужно для корректного поиска без учета регистра и лишних пробелов.
-	const normalizedSearch = search.trim().toLowerCase();
 
 	// 2. Создаем отфильтрованный и отсортированный список для отображения.
 	//    Не мутируем исходный массив todos из стейта — работаем с его копией.
 	// todos — это все задачи из стейта.
 	// visibleTodos — это уже отфильтрованные и отсортированные задачи, которые были посчитаны выше по коду, поэтому при рендере нужно обходить именно их
-	const visibleTodos = todos
-		// Шаг 2.1: ФИЛЬТРАЦИЯ по поисковой фразе
-		.filter((todo) => {
-			// Если поисковая фраза пустая — показываем ВСЕ задачи
-			if (!normalizedSearch) {
-				return true;
-			}
-
-			// Иначе проверяем: содержит ли title задачи (в нижнем регистре) нашу фразу
-			// .includes() ищет подстроку, например "купить" найдет "Купить молоко"
-			return todo.title.toLowerCase().includes(normalizedSearch);
-		})
-		// Шаг 2.2: СОРТИРОВКА по алфавиту (после фильтрации)
-		.sort((a, b) => {
-			// Сравниваем title двух задач с учетом локали (русский алфавит правильно)
-			const titleA = a.title.toLowerCase();
-			const titleB = b.title.toLowerCase();
-
-			// Если sortAsc = true (A→Z): первая задача должна быть раньше второй
-			if (sortAsc) {
-				return titleA.localeCompare(titleB);
-			}
-
-			// Если sortAsc = false (Z→A): первая задача должна быть ПОЗЖЕ второй
-			return titleB.localeCompare(titleA);
-		});
+	const visibleTodos = getVisibleTodos(todos, search, sortAsc);
 
 	return (
 		<main className={styles.todo}>
 			{/* Заголовок */}
-			<h1 className="todo__title">Todo List</h1>
-
+			<h1 className={styles.todoAppTitle}>Todo List</h1>
 			{/* Форма добавления дела */}
-			<form className="todo__form" onSubmit={handleFormSubmit}>
-				<div className="todo__field field">
-					<label className="field__label" htmlFor="new-task">
-						New task
-					</label>
-					<input
-						className="field__input"
-						id="new-task"
-						placeholder=" "
-						autoComplete="off"
-						value={newTask}
-						onChange={handleNewTaskChange}
-					/>
-				</div>
-				<button className="button" type="submit">
-					Add
-				</button>
-			</form>
-
-			<input
+			<TodoForm
+				value={newTask}
+				onChange={handleNewTaskChange}
+				onSubmit={handleFormSubmit}
+			/>
+			{/* Поиск и сортировка */}
+			{/* <div>
+				<input
 				type="text"
 				placeholder="Поиск по задачам"
 				value={search}
 				// onChange={(event) => setSearch(event.target.value)}
 				onChange={(event) => debouncedSetSearch(event.target.value)}
+				/>
+
+				<button type="button" onClick={() => setSortAsc((prev) => !prev)}>
+				Сортировать {sortAsc ? 'А-Я' : 'Я-А'}
+				</button>
+				</div> */}
+			{/* Компонент поиска и сортировки */}
+			<TodoFilters
+				search={search}
+				onSearchChange={(event) => debouncedSetSearch(event.target.value)}
+				onToggleSort={() => setSortAsc((prev) => !prev)}
+				sortAsc={sortAsc}
 			/>
-
-			<button type="button" onClick={() => setSortAsc((prev) => !prev)}>
-				Сортировать {sortAsc ? 'Я-А' : 'А-Я'}
-			</button>
-
 			{/* Список дел */}
 			{/* чекбокс начнёт вызывать handleToggleCompleted, а состояние completed будет обновляться и в React, и в JSON Server. React вызывает handleToggleCompleted с правильным id и новым значением;
 			функция сначала обновляет на сервере, затем обновляет state.
 			todos — это все задачи из стейта.
 			visibleTodos — это уже отфильтрованные и отсортированные задачи, которые были посчитаны выше по коду, поэтому при рендере нужно обходить именно их */}
-			<ul className="todo-app__list">
-				{visibleTodos.map((todo) => (
-					<li key={todo.id} className={styles['todo-app__item']}>
-						<input
-							className={styles['checkbox']}
-							type="checkbox"
-							checked={todo.completed}
-							onChange={() =>
-								handleToggleCompleted(todo.id, !todo.completed)
-							}
-						/>
-						<span>{todo.title}</span>
-						<button
-							type="button"
-							className={styles.deleteButton}
-							onClick={() => handleDelete(todo.id)}
-						>
-							Delete
-						</button>
-					</li>
-				))}
-			</ul>
+			<TodoList
+				todos={visibleTodos}
+				onToggle={handleToggleCompleted}
+				onDelete={handleDelete}
+			/>
 		</main>
 	);
 };

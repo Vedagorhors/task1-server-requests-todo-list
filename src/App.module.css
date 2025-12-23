@@ -9,37 +9,6 @@
 	box-sizing: border-box;
 }
 
-/* Один элемент списка дел */
-.todo-app__item {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding: 8px 4px;
-	border-bottom: 1px solid #e5e7eb;
-	font-size: 15px;
-}
-
-/* Чекбокс */
-.checkbox {
-	width: 16px;
-	height: 16px;
-	cursor: default; /* пока только отображение, без клика */
-}
-
-/* кнопка Delete */
-.deleteButton {
-	margin-left: auto; /* отодвинуть кнопку вправо в строке */
-	padding: 4px 8px;
-	border: 1px solid #ef4444;
-	border-radius: 6px;
-	background-color: #fee2e2;
-	color: #b91c1c;
-	font-size: 12px;
-	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.deleteButton:hover {
-	background-color: #ef4444;
-	color: #ffffff;
+.todoAppTitle {
+	text-align: center;
 }

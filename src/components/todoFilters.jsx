@@ -5,7 +5,6 @@ const TodoFilters = ({ search, onSearchChange, onToggleSort, sortAsc }) => {
 				type="text"
 				placeholder="Поиск по задачам"
 				value={search}
-				// onChange={(event) => setSearch(event.target.value)}
 				onChange={onSearchChange}
 			/>
 

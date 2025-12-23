@@ -3,22 +3,22 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	list-style: none; /* убирает "•" */
+	list-style: none;
 }
 
 /* Чекбокс */
 .checkbox {
 	width: 16px;
 	height: 16px;
-	cursor: default; /* пока только отображение, без клика */
+	cursor: default;
 }
 
 .title {
-	flex: 1; /* тянет текст, а Delete уезжает вправо */
+	flex: 1;
 }
 
 .deleteButton {
-	margin-left: auto; /* отодвинуть кнопку вправо в строке */
+	margin-left: auto;
 	padding: 4px 8px;
 	border: 1px solid #ef4444;
 	border-radius: 6px;

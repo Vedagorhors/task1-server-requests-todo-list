@@ -1,6 +1,6 @@
 .todoForm {
 	/* display: flex; */
-	align-items: center; /* выравнивание по вертикали */
+	align-items: center;
 	gap: 8px;
 	margin-bottom: 20px;
 }
@@ -18,9 +18,8 @@
 
 .fieldInput {
 	width: 100%;
-	padding: 8px 12px; /* те же отступы, что и у кнопки */
+	padding: 8px 12px;
 	border: 1px solid #007bff;
-	/* border-radius: 4px 0 0 4px; */
 	font-size: 16px;
 	box-sizing: border-box;
 }
@@ -31,12 +30,11 @@
 }
 
 .button {
-	padding: 8px 12px; /* те же вертикальные отступы */
+	padding: 8px 12px;
 	background: #007bff;
 	color: white;
-	border: 1px solid #007bff; /* тот же бордер, что и у инпута */
-	/* border-radius: 0 4px 4px 0; */
-	font-size: 14px; /* тот же размер шрифта */
+	border: 1px solid #007bff;
+	font-size: 14px;
 	cursor: pointer;
 }
 

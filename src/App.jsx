@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './App.module.css';
 // import { getTodos, createTodo, updateTodo, deleteTodo } from './api';
-import { getTodos, createTodo, updateTodo, deleteTodo } from './api/todosApiFirebase';
+// import { getTodos, createTodo, updateTodo, deleteTodo } from './api/todosApiFirebase';
+// для работы с firebase для Realtime Database убираю из импорта getTodos:
+import { createTodo, updateTodo, deleteTodo } from './api/todosApiFirebase';
 import debounce from 'lodash.debounce';
 // import TodoItem from './components/todoItem';
 import TodoForm from './components/todoForm';
 import TodoList from './components/todoList';
 import TodoFilters from './components/todoFilters';
 import { getVisibleTodos } from './utils/gerVisibleTodos';
+// подписка onValue, теперь функция getTodos больше нигде не используется
+import { ref, onValue } from 'firebase/database';
+import { db } from './firebase';
 
 export const App = () => {
 	// const initialTodos = [
@@ -41,23 +46,57 @@ export const App = () => {
 
 	// 2 способ работы с асинхроныым кодом (используем async/await) и выполением http запросов с помощью хука useEffect
 
+	// useEffect(() => {
+	// 	const fetchTodos = async () => {
+	// 		try {
+	// 			// Получаю готовый массив
+	// 			const loadedTodos = await getTodos();
+	// 			// Сохраняю массив в состояние
+	// 			setTodos(loadedTodos);
+	// 		} catch (error) {
+	// 			// 5. Обрабатываю ошибку
+	// 			console.error('Ошибка при загрузке задач:', error);
+	// 		}
+	// 	};
+
+	// 	fetchTodos();
+
+	// 	// Очистка debounce при размонтировании
+	// 	return () => {
+	// 		debouncedSetSearch?.cancel();
+	// 	};
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
+
+	// Чтобы синхронно обновлялись данные с базы Realtime Database на Firebase заменяю код useEffect
 	useEffect(() => {
-		const fetchTodos = async () => {
-			try {
-				// Получаю готовый массив
-				const loadedTodos = await getTodos();
-				// Сохраняю массив в состояние
-				setTodos(loadedTodos);
-			} catch (error) {
-				// 5. Обрабатываю ошибку
+		const todosRef = ref(db, 'todos');
+
+		// подписка на изменения в Realtime Database
+		const unsubscribe = onValue(
+			todosRef,
+			(snapshot) => {
+				const todos = [];
+
+				if (snapshot.exists()) {
+					snapshot.forEach((childSnapshot) => {
+						todos.push({
+							id: childSnapshot.key,
+							...childSnapshot.val(),
+						});
+					});
+				}
+
+				setTodos(todos);
+			},
+			(error) => {
 				console.error('Ошибка при загрузке задач:', error);
-			}
-		};
+			},
+		);
 
-		fetchTodos();
-
-		// Очистка debounce при размонтировании
+		// очистка: отписка + отмена debounce
 		return () => {
+			unsubscribe();
 			debouncedSetSearch?.cancel();
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,9 +111,7 @@ export const App = () => {
 	// Обработчик отправки формы добавления новой задачи.
 	const handleFormSubmit = async (event) => {
 		event.preventDefault();
-		if (newTask.trim() === '') {
-			return;
-		}
+		if (newTask.trim() === '') return;
 
 		try {
 			// Формируем объект «черновика» новой задачи.
@@ -85,7 +122,12 @@ export const App = () => {
 			};
 			// Отправляем запрос на сервер (POST /todos).
 			// createTodo вернёт уже созданный на сервере объект задачи с проставленным уникальным id.
-			const createdTodo = await createTodo(newTodoData);
+			// для работы с Firebase удаляем следующую строку:
+			// const createdTodo = await createTodo(newTodoData);
+			// удаляем setTodos из handleFormSubmit, чтобы всё приходило только из Firebase:
+			// setTodos((prevTodos) => [...prevTodos, createdTodo]); // ← лишнее при onValue
+			await createTodo(newTodoData); // только пишем в базу
+			setNewTask(''); // поле очищаем
 
 			// Обновляем состояние списка задач.
 			// Берём предыдущий массив (prevTodos) и добавляем в конец только что созданную задачу с сервера createdTodo.
@@ -93,7 +135,8 @@ export const App = () => {
 			// React сам передаёт в эту стрелочную функцию текущее значение состояния todos:
 			// prevTodos — это то, что сейчас лежит в todos на момент обновления;
 			// внутри стрелочной функции возвращается новый массив, который React запишет в todos.
-			setTodos((prevTodos) => [...prevTodos, createdTodo]);
+			// НЕ вызываем setTodos здесь — список обновит onValue
+			// setTodos((prevTodos) => [...prevTodos, createdTodo]);
 
 			// После добавления задачи очищаю поле ввода новой задачи newTask
 			setNewTask('');
@@ -111,8 +154,10 @@ export const App = () => {
 			await updateTodo(id, { completed });
 
 			// Перезагрузка с сервера (как в handleDelete)
-			const updatedTodos = await getTodos();
-			setTodos(updatedTodos);
+			// для Realtime Database: Так как обновление списка теперь делает подписка, повторные
+			// getTodos() в обработчиках уже не нужны.
+			// const updatedTodos = await getTodos(); // подписка сама подтянет новые данные
+			// setTodos(updatedTodos);
 		} catch (error) {
 			console.error('Ошибка при обновлении задачи:', error);
 		}
@@ -123,11 +168,13 @@ export const App = () => {
 		try {
 			// 1. Пытаемся удалить задачу на сервере.
 			await deleteTodo(id);
-			const updatedTodos = await getTodos();
+			// для Realtime Database: Так как обновление списка теперь делает подписка, повторные
+			// getTodos() в обработчиках уже не нужны.
+			// const updatedTodos = await getTodos();
 			// 2. Если ошибок не было, обновляем локальное состояние.
 			//    Фильтруем массив: оставляем только те задачи,
 			//    id которых не совпадает с удаляемым.
-			setTodos(updatedTodos);
+			// setTodos(updatedTodos);
 		} catch (error) {
 			console.error('Ошибка при удалении задачи:', error);
 		}

@@ -16,14 +16,14 @@
       "id": 4
     },
     {
-      "title": "Отремонтировать кран",
-      "completed": false,
-      "id": 5
-    },
-    {
-      "title": "Показать идео",
+      "title": "Показать видео",
       "completed": false,
       "id": 6
+    },
+    {
+      "title": "Посмотреть новости",
+      "completed": false,
+      "id": 7
     }
   ]
 }

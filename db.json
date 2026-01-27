@@ -16,14 +16,14 @@
       "id": 4
     },
     {
-      "title": "Показать видео",
-      "completed": false,
-      "id": 6
-    },
-    {
       "title": "Посмотреть новости",
       "completed": false,
       "id": 7
+    },
+    {
+      "title": "Написать код",
+      "completed": false,
+      "id": 8
     }
   ]
 }

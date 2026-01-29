@@ -1,27 +1,13 @@
 import { useState, useEffect } from 'react';
-import styles from './App.module.css';
 import { getTodos, createTodo, updateTodo, deleteTodo } from './api';
+import { HomePage, TaskPage, NotFoundPage } from './pages';
+import { Routes, Route } from 'react-router-dom';
 
 export const App = () => {
-	// const initialTodos = [
-	// 	{ id: 1, title: 'Проснуться и принять душ' },
-	// 	{ id: 2, title: 'Сделать зарядку' },
-	// 	{ id: 3, title: 'Заняться изучением React' },
-	// ];
-
 	const [todos, setTodos] = useState([]); // пустой список до загрузки
 	const [newTask, setNewTask] = useState('');
 	const [search, setSearch] = useState('');
 	const [sortAsc, setSortAsc] = useState(true); // true = A→Z, false = Z→A
-
-	// 1 способ работы с асинхронным кодом и выполением http запросов с помощью хука useEffect
-	// useEffect(() => {
-	// 	fetch('https://jsonplaceholder.typicode.com/todos?_limit=3')
-	// 		.then((todosData) => todosData.json())
-	// 		.then((loadedTodos) => setTodos(loadedTodos));
-	// }, []); // пустой массив внешних зависимостей хука useEffect -> запуск один раз. Пустой массив указывает на этап монтирования
-
-	// 2 способ работы с асинхроныым кодом (используем async/await) и выполением http запросов с помощью хука useEffect
 
 	useEffect(() => {
 		const fetchTodos = async () => {
@@ -42,7 +28,6 @@ export const App = () => {
 	const handleNewTaskChange = (event) => {
 		const value = event.target.value;
 		setNewTask(value);
-		// console.log(value);
 	};
 
 	// Обработчик отправки формы добавления новой задачи.
@@ -111,6 +96,49 @@ export const App = () => {
 		}
 	};
 
+	// Функция для обновления задачи по ID. Принимает ID задачи и объект с изменениями (например, { title: "новый текст" })
+	const onUpdateTodo = async (id, updates) => {
+		// async - функция асинхронная, т.к. работает с сетью (API запрос)
+		// id - числовой ID задачи (например, 1, 2, 3...)
+		// updates - объект с полями для изменения: { title: "...", completed: true }
+
+		try {
+			// Блок try-catch для обработки ошибок сети/сервера
+
+			// 1. Отправляем PATCH запрос на сервер: /todos/:id
+			// updateTodo(id, updates) - функция из todosApi.js
+			// await - ждём ответа сервера (новый объект задачи с обновлёнными данными)
+			const updatedTodo = await updateTodo(id, updates);
+
+			// 2. Обновляем локальное состояние todos
+			// setTodos с функциональным обновлением (prev => ...) - получает ТЕКУЩИЙ массив
+			// prev - предыдущее значение состояния todos (актуальный массив задач)
+			setTodos(
+				(prev) =>
+					// map проходит по КАЖДОЙ задаче в массиве и возвращает НОВЫЙ массив
+					prev.map((todo) =>
+						// Проверяем: если id текущей задачи (todo.id) === id обновляемой задачи
+						todo.id === id
+							? // ✅ ДА: заменяем задачу на updatedTodo (с сервера, с изменениями)
+								updatedTodo
+							: // ❌ НЕТ: оставляем задачу без изменений
+								todo,
+					), // map возвращает новый массив с одной заменённой задачей
+			);
+		} catch (error) {
+			// Если updateTodo выбросил ошибку (сервер недоступен, 404, 500...)
+			// error содержит информацию: тип ошибки, текст, статус HTTP
+			console.error('Ошибка редактирования:', error);
+			// Логируем в консоль для отладки, НЕ ломает приложение
+		}
+	};
+
+	// Как это работает:
+	// 	1. Вызов: onUpdateTodo(5, { title: "Новое название" })
+	// 2. API: PATCH /todos/5 → сервер возвращает { id: 5, title: "Новое название" }
+	// 3. Локально: todos.map() → заменяем задачу id=5 на новую
+	// 4. UI: React перерендерит HomePage с обновлённым названием
+
 	// Обработчик, задача которого по нажатию на кнопку удалить задачу на сервере и из локального массива todos
 	const handleDelete = async (id) => {
 		try {
@@ -162,68 +190,36 @@ export const App = () => {
 		});
 
 	return (
-		<main className={styles.todo}>
-			{/* Заголовок */}
-			<h1 className="todo__title">Todo List</h1>
-
-			{/* Форма добавления дела */}
-			<form className="todo__form" onSubmit={handleFormSubmit}>
-				<div className="todo__field field">
-					<label className="field__label" htmlFor="new-task">
-						New task
-					</label>
-					<input
-						className="field__input"
-						id="new-task"
-						placeholder=" "
-						autoComplete="off"
-						value={newTask}
-						onChange={handleNewTaskChange}
+		<Routes>
+			<Route
+				path="/"
+				element={
+					<HomePage
+						handleFormSubmit={handleFormSubmit}
+						handleNewTaskChange={handleNewTaskChange}
+						handleToggleCompleted={handleToggleCompleted}
+						newTask={newTask}
+						search={search}
+						setSearch={setSearch}
+						sortAsc={sortAsc}
+						setSortAsc={setSortAsc}
+						visibleTodos={visibleTodos}
 					/>
-				</div>
-				<button className="button" type="submit">
-					Add
-				</button>
-			</form>
-
-			<input
-				type="text"
-				placeholder="Поиск по задачам"
-				value={search}
-				onChange={(event) => setSearch(event.target.value)}
+				}
 			/>
-
-			<button type="button" onClick={() => setSortAsc((prev) => !prev)}>
-				Сортировать {sortAsc ? 'Я-А' : 'А-Я'}
-			</button>
-
-			{/* Список дел */}
-			{/* чекбокс начнёт вызывать handleToggleCompleted, а состояние completed будет обновляться и в React, и в JSON Server. React вызывает handleToggleCompleted с правильным id и новым значением;
-			функция сначала обновляет на сервере, затем обновляет state.
-			todos — это все задачи из стейта.
-			visibleTodos — это уже отфильтрованные и отсортированные задачи, которые были посчитаны выше по коду, поэтому при рендере нужно обходить именно их */}
-			<ul className="todo-app__list">
-				{visibleTodos.map((todo) => (
-					<li key={todo.id} className={styles['todo-app__item']}>
-						<input
-							className={styles['checkbox']}
-							type="checkbox"
-							checked={todo.completed}
-							onChange={() =>
-								handleToggleCompleted(todo.id, !todo.completed)
-							}
-						/>
-						<span>{todo.title}</span>
-						<button
-							type="button"
-							className={styles.deleteButton}
-							onClick={() => handleDelete(todo.id)}
-						>
-							Delete
-						</button>
-					</li>
-				))}
-			</ul>
-		</main>
+			<Route
+				path="/task/:id"
+				element={
+					<TaskPage
+						todos={todos}
+						onToggleComplete={handleToggleCompleted}
+						onUpdateTodo={onUpdateTodo}
+						onDeleteTask={handleDelete}
+					/>
+				}
+			/>
+			<Route path="/404" element={<NotFoundPage />} />
+			<Route path="*" element={<NotFoundPage />} />
+		</Routes>
 	);
 };

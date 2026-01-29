@@ -36,10 +36,59 @@
 	color: #b91c1c;
 	font-size: 12px;
 	cursor: pointer;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
 }
 
 .deleteButton:hover {
 	background-color: #ef4444;
 	color: #ffffff;
+}
+
+.titleLink {
+	display: inline-block; /* важный контейнер */
+	white-space: nowrap; /* одна строка */
+	overflow: hidden; /* скрываем переполнение */
+	text-overflow: ellipsis; /* многоточие ... */
+	max-width: 250px; /* фиксированная ширина */
+	text-decoration: none; /* без подчёркивания по умолчанию */
+	color: inherit; /* цвет как у текста */
+}
+
+.titleLink:hover {
+	text-decoration: underline; /* подчёркивание при наведении */
+	cursor: pointer;
+}
+
+.taskPage {
+	padding: 20px;
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+.taskPage button {
+	margin: 5px;
+	padding: 8px 16px;
+}
+
+.taskPage input[type='checkbox'] {
+	transform: scale(1.5);
+	margin-right: 10px;
+}
+
+.taskPage p {
+	font-size: 18px;
+	line-height: 1.5;
+	white-space: pre-wrap; /* сохраняет переносы строк */
+}
+
+.notFound {
+	text-align: center;
+	padding: 50px;
+}
+
+.notFound h1 {
+	font-size: 100px;
+	color: #ccc;
 }

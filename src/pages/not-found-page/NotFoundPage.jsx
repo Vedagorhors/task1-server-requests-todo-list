@@ -1,12 +1,14 @@
+import styles from './NotFoundPage.module.css';
 import { Link } from 'react-router-dom';
-import styles from '../../App.module.css';
 
 export const NotFoundPage = () => {
 	return (
-		<main className={styles.notFound}>
-			<h1>404</h1>
-			<p>Страница не найдена</p>
-			<Link to="/">← Вернуться к списку задач</Link>
+		<main className={styles.page}>
+			<h1 className={styles.title}>404</h1>
+			<p className={styles.message}>Страница не найдена</p>
+			<Link to="/" className={styles.link}>
+				← Вернуться к списку задач
+			</Link>
 		</main>
 	);
 };

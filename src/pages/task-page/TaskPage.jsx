@@ -1,6 +1,6 @@
-import { useState } from 'react'; // Импортируем хуки React
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // Хуки React Router для работы с URL и навигацией
-import styles from '../../App.module.css'; // CSS-модули из корневого App.module.css (путь относительно task-page/)
+import styles from './TaskPage.module.css';
 
 export const TaskPage = ({
 	// Компонент страницы отдельной задачи
@@ -98,9 +98,6 @@ export const TaskPage = ({
 
 				// РЕЖИМ ПРОСМОТРА ===================================================
 				<>
-					{/* Полный текст задачи БЕЗ обрезки (в отличие от главной страницы) */}
-					<p>{task.title}</p>
-
 					{/* Кнопка входа в режим редактирования */}
 					<button onClick={handleEditToggle}>Редактировать</button>
 

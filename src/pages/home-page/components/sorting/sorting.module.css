@@ -1,0 +1,19 @@
+/* src/pages/home-page/components/sorting/sorting.module.css */
+.sortButton {
+	padding: 10px 20px;
+	background: #28a745;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	cursor: pointer;
+	transition: background 0.3s;
+}
+
+.sortButton:hover {
+	background: #218838;
+}
+
+.sortButton:active {
+	transform: translateY(1px);
+}

@@ -1,0 +1,36 @@
+/* src/pages/not-found-page/NotFoundPage.module.css */
+.page {
+	padding: 60px 20px;
+	max-width: 500px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.title {
+	font-size: 8rem;
+	color: #cbd5e1;
+	margin: 0;
+	line-height: 1;
+	font-weight: 300;
+}
+
+.message {
+	font-size: 1.5rem;
+	color: #64748b;
+	margin: 20px 0 40px;
+}
+
+.link {
+	display: inline-block;
+	padding: 12px 24px;
+	background: #3b82f6;
+	color: white;
+	text-decoration: none;
+	border-radius: 8px;
+	font-weight: 500;
+	transition: background 0.2s ease;
+}
+
+.link:hover {
+	background: #2563eb;
+}

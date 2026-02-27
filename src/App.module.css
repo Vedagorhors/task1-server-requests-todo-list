@@ -1,5 +1,9 @@
 /* src/App.module.css */
 
+.app {
+	min-height: 100vh;
+}
+
 /* Контейнер всего приложения (можем использовать и для HomePage, и для TaskPage, если хочешь) */
 /* .todo {
 	max-width: 480px;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './App.module.css';
-import { useTodos } from './hooks/useTodos';
+import { useTodosContext } from './context/TodosContext';
 import { useFilteredTodos } from './hooks/useFilteredTodos';
 import { Search } from './components/search/search';
 import { Sorting } from './components/sorting/sorting';
@@ -11,7 +11,7 @@ export const App = () => {
 	const [search, setSearch] = useState('');
 	const [sortAsc, setSortAsc] = useState(true);
 
-	const { todos, createTodo, toggleCompleted, deleteTodo } = useTodos();
+	const { todos, createTodo, toggleCompleted, deleteTodo } = useTodosContext();
 	const visibleTodos = useFilteredTodos({ todos, search, sortAsc });
 
 	return (

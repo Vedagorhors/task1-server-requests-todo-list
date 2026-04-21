@@ -1,7 +1,7 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 import { useTodos } from '../hooks/useTodos';
 
-const TodosContext = createContext();
+const TodosContext = createContext(null);
 
 export const TodosProvider = ({ children }) => {
 	const {
@@ -31,12 +31,4 @@ export const TodosProvider = ({ children }) => {
 	);
 };
 
-export const useTodosContext = () => {
-	const context = useContext(TodosContext);
-
-	if (!context) {
-		throw new Error('useTodosContext must be used within a TodosProvider');
-	}
-
-	return context;
-};
+export { TodosContext };

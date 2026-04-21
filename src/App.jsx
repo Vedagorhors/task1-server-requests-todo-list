@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './App.module.css';
-import { useTodosContext } from './context/TodosContext';
+import { useTodosContext } from './context/useTodosContext';
 import { useFilteredTodos } from './hooks/useFilteredTodos';
 import { Search } from './components/search/search';
 import { Sorting } from './components/sorting/sorting';

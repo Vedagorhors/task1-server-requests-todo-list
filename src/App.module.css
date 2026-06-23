@@ -13,3 +13,18 @@
 	margin-bottom: 24px;
 	text-align: center;
 }
+
+.todo__loading {
+	padding: 10px;
+	text-align: center;
+	color: #666;
+}
+
+.todo__error {
+	padding: 10px;
+	margin: 10px 0;
+	background-color: #fee2e2;
+	border: 1px solid #ef4444;
+	border-radius: 6px;
+	color: #b91c1c;
+}

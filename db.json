@@ -1,16 +1,6 @@
 {
   "todos": [
     {
-      "title": "Умыться",
-      "completed": false,
-      "id": 1
-    },
-    {
-      "title": "Позавтракать",
-      "completed": false,
-      "id": 2
-    },
-    {
       "title": "Купить хлеб",
       "completed": false,
       "id": 4
@@ -21,9 +11,14 @@
       "id": 5
     },
     {
-      "title": "Показать идео",
+      "title": "Показать видео",
       "completed": false,
       "id": 6
+    },
+    {
+      "title": "Сделать капучинатор",
+      "completed": false,
+      "id": 7
     }
   ]
 }
